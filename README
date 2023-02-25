@@ -1,0 +1,42 @@
+                              srvx Readme File
+
+Description:
+----------
+srvx is a complete set of services for ircu/Undernet P10 protocol
+networks. It aims to be highly efficient, flexible, and
+extensible. Features include advanced proxy detection and all the
+standard services users expect e.g. ChanServ, NickServ, OpServ,
+HelpServ, and Global.
+
+srvx is open source software; the source is available for download
+under the terms and conditions of the GNU General Public License,
+commonly known as the GNU GPL.
+
+The official srvx web site is available at http://www.srvx.net/.
+
+Installation:
+----------
+Please read the INSTALL file for installation instructions.
+
+Support:
+----------
+Please read the documentation included in the srvx distribution before
+you ask us for support. The answers to many common questions related
+to installation are in the FAQ file. Other important documentation
+files have names in all upper case.  It saves both your time and our
+time, so please read the documentation.
+
+If you change the credits in your version of the code so as to obscure
+the original authorship of the program, we will not support you.  If
+you want to use our code -- especially if you want us to answer your
+questions about it -- do the decent thing and preserve the credits
+that are in the code we distribute.
+
+Contacts:
+----------
+The AUTHORS file contains contact information for the srvx Development
+Team.
+
+End of file, README.
+
+-Jedi (jedi@turboflux.net)

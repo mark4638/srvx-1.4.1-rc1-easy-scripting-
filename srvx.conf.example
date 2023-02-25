@@ -1,0 +1,555 @@
+// services configuration file (example)
+/* It allows two kinds of comments.  Whitespaces between tokens are
+ * ignored.  All strings (even if they're just numbers) MUST be
+ * enclosed in double quotes.  There must be a semicolon after every
+ * key/value pair.
+ */
+
+// The "uplinks" section describes what servers we can possibly link
+// to.  Each subsection describes one server.
+"uplinks" {
+    "private-network" {
+        // IP address and port the server listens on
+        "address"        "10.0.0.3";
+        "port"           "6660";
+        // What password should we send when we connect?
+        "password"       "passwordtoconnect";
+        // What password should we require our peer to send?
+        // (If it is blank, we do not require a specific password.)
+        "their_password" "passwordtorequire";
+        "enabled"        "1";
+        // How many times should we try to connect before giving up?
+        "max_tries"      "3";
+        // What IP should we bind to?
+        // If you do not specify bind_address, the default is used.
+        // "bind_address"   "192.168.0.10"; // use this ip to link
+    };
+
+    /* unused-uplink is just an example to show you how you can
+     * define more than one uplink (and how you can disable one or
+     * more of them.) */
+    "unused-uplink" {
+        "address"        "10.0.0.4";
+        "port"           "6660";
+        "password"       "passwordtoconnect";
+        "their_password" "passwordtorequire";
+        // If "enabled" is 0, we will not try to use this uplink.
+        "enabled"        "0";
+        "max_tries"      "3";
+    };
+};
+
+// The "services" section configures the services that make up srvx.
+"services" {
+    "nickserv" {
+        "nick" "NickServ";
+        // What user modes do you want this service to have? Please keep in
+        // mind which ircd software you are using here, and that all of the
+        // services need to be at least +o.
+        // "modes" "+iok";
+        // If you want to by have *@* as the default hostmask for all
+        // new accounts, set default_hostmask.  This is discouraged
+        // for security reasons.
+        // "default_hostmask" "1";
+        // do we warn users when someone new auths to their account?
+        "warn_clone_auth" "1";
+        // what is the default maxlogins value?
+        "default_maxlogins" "2";
+        // what is the absolute maxlogins value?
+        "hard_maxlogins" "10";
+        // Which mode should we use for account timestamps?
+        "account_timestamp_mode" "ignore";
+        // This names a file that contains easily guessed passwords.
+        // It always contains "password", "<password>" and the user's
+        // account name.
+        "dict_file" "/usr/share/dict/words";
+        // Minimum number of various types of characters permitted in
+        // a password.
+        "password_min_length" "4";
+        "password_min_digits" "1";
+        "password_min_upper" "0";
+        "password_min_lower" "0";
+        // What should valid account and nicks look like?
+        // If valid_nick_regex is omitted, valid_account_regex is used
+        // for both nicks and accounts.
+        // These look funny because "[][-]" is the only way to write the
+        // character class containing the characters ']', '[' and '-'.
+        "valid_account_regex" "^[][_a-z^`'{}|-][][_a-z0-9^`'{}|-]*$";
+        "valid_nick_regex" "^[-_a-z][-_a-z0-9]*$";
+		//default devnull class
+		"default_devnull" "";
+        // Should nick ownership be disabled?
+        "disable_nicks" "0";
+        // One account may only own this many nicks.
+        "nicks_per_account" "4";
+        // Send a warning when someone uses a registered nick?
+        "warn_nick_owned" "0";
+        // What to do when someone uses the NickServ "reclaim" command?
+        // This can be one of "none", "warn", "svsnick", or "kill", but
+        // stock ircu does not support svsnick -- you need Bahamut or a
+        // patch for ircu.  no, don't ask srvx developers for the patch.
+        "reclaim_action" "none";
+        // What (else) to do when someone uses a registered nick?
+        // This can be anything "reclaim_action" can be, but it makes
+        // more sense to use the "warn_nick_owned" instead of "warn".
+        "auto_reclaim_action" "none";
+        // How long to wait before doing the auto_reclaim_action?
+        // This is ignored if "auto_reclaim_action" is "none".
+        "auto_reclaim_delay" "0";
+
+        // access control for who can change account flags
+        "flag_levels" {
+            "g" "800";
+            "lc_h" "800"; // specifically lower case h
+            "uc_H" "800"; // .. and upper case H
+            "S" "999";
+            "b" "800";
+            "I" "800";
+        };
+        // and for who can change epithets for staff
+        "set_epithet_level" "800";
+        // what opserv access level do you need to set somebody else's level?
+        "modoper_level" "850";
+        // what opserv access level do you need to set somebody's staff level?
+        "modstaff_level" "750";
+
+        // how often should accounts be expired?
+        "account_expire_freq" "1d";
+        // how long until an account with access to any channel(s) expires?
+        "account_expire_delay" "35d";
+        // how long until an account with no access to any channels expires?
+        "nochan_account_expire_delay" "14d";
+        // how long must an account be inactive so it can be ounregistered without force?
+        "ounregister_inactive" "1M";
+        // which flags on an account require the ounregister to be used with force?
+        "ounregister_flags" "ShgsfnHbuI";
+        /* "require_qualified" has been removed. It is now
+         * integrated into the modcmd command authorization
+         * and dispatch mechanism.  "/msg OpServ help modcmd"
+         * for details.
+         */
+        // If somebody keeps guessing passwords incorrectly, do we gag them?
+        "autogag_enabled" "1";
+        "autogag_duration" "30m";
+        "auth_policer" {
+            "size" "5";
+            "drain-rate" "0.05";
+        };
+        // How to integrate with email cookies?
+        "email_enabled" "0"; // if set, /mail/enable MUST be set too
+        "email_required" "0"; // ignored unless email_enabled is non-zero
+        "cookie_timeout" "1d"; // how long before we expire cookies?
+        "accounts_per_email" "1"; // you may want to increase this; or not
+        "email_search_level" "600"; // minimum OpServ level to search based on email address
+        "email_visible_level" "800"; // minimum OpServ level to see somebody's email address
+		"reg_enabled" "TRUE"; //EMPTY=DIABLED  TRUE=ENABLED
+		"reg_homepage" "http://git.nexus-irc.de";
+		"set_email" "TRUE"; //EMPTY=DIABLED  TRUE=ENABLED
+    };
+
+    "opserv" {
+        "nick" "OpServ";
+        // What user modes do you want this service to have? Please keep in
+        // mind which ircd software you are using here, and that all of the
+        // services need to be at least +o.
+        // "modes" "+iok";
+        // should use of this service be limited to global opers?
+        "privileged" "1";
+        // fullname for service
+        "description" "Oper Service Bot";
+        // hostname for service; only used if "description" is also set
+        "hostname" "dances-all-night-with.srvx.net";
+        // what channel should opserv send debug output to?
+        "debug_channel" "#opserv";
+        "debug_channel_modes" "+tinms";
+        // where to send general alerts (e.g. flood alerts)?
+        "alert_channel" "#ircops";
+        "alert_channel_modes" "+tns";
+        // who to tell about staff auths?
+        "staff_auth_channel" "#opserv";
+        "staff_auth_channel_modes" "+tinms";
+        // Force Opers to be in staff_auth_channel
+        // 0 = don't force opers to be in the channel
+        // 1 = force opers to be in the channel
+        // 2 = force opers to be in the channel but kick them if they get mode -o set (deoper)
+        "staff_auth_force_opers" "2";
+        // how many clones to allow from an untrusted host?
+        "untrusted_max" "4";
+        // how long of a g-line should be issued if the max hosts is exceeded?
+        "clone_gline_duration" "1h";
+        // how long to g-line for ?block (or, by default, for ?trace gline)?
+        "block_gline_duration" "1h";
+        // how long to keep an illegal channel locked down (seconds)?
+        "purge_lock_delay" "60";
+        // channel join flood policer params?
+        "join_policer" {
+            "size" "20";
+            "drain-rate" "1";
+        };
+        // automatically moderate join flooded channels?
+        "join_flood_moderate" "1";
+        // Don't moderate and warn channels unless there are more than
+        // join_flood_moderate_threshold users in the channel. the
+        // value 0 will disable the threshold.
+        "join_flood_moderate_threshold" "50";
+        // new user flood policer params
+        "new_user_policer" {
+            "size" "200";
+            "drain-rate" "3";
+        };
+        
+    };
+
+    "chanserv" {
+        // You may disable a service by removing its "nick" config item.
+        // That means: SERVICES WILL ONLY WORK IF YOU DEFINE THEIR NICK.
+        // (This is changed relative srvx-1.0.x, which would use default
+        // unless you specified ".disabled".)
+        "nick" "ChanServ";
+        // What user modes do you want this service to have? Please keep in
+        // mind which ircd software you are using here, and that all of the
+        // services need to be at least +o.
+        // "modes" "+iok";
+        // Does your ircd have off-channel services support? Does it have
+        // a registered channel mode? Does it support services opping themselves?
+        // Bahamut has these things; ircu2.10.11 does not.
+        // This setting takes three numerical values:
+        //   0 = off
+        //   1 = use a registered channel mode, have services op themselves
+        //   2 = all of the above, and a channel setting to have ChanServ not
+        //       idle in the channel
+        "off_channel" "0";
+        // revoke channel mode +a on unregister?
+        "revoke_mode_a" "1";
+        // how long should a person be unseen before resending infoline?
+        "info_delay" "120";
+        // maximum greeting length
+        "max_greetlen" "200";
+        // maximum users in a channel userlist
+        "max_chan_users" "512";
+        // maximum bans on a channel banlist
+        "max_chan_bans" "512";
+        // maximum length of a user's infoline
+        "max_userinfo_length" "400";
+        // If DynLimit is on and there are N users in the channel, ChanServ will
+        // try to keep the limit at N+<adjust_threshold>.
+        "adjust_threshold" "15";
+        // .. but ChanServ will only increment or decrement the limit this often.
+        "adjust_delay" "30";
+        // How often to look for channels that have expired?
+        "chan_expire_freq" "3d";
+        // How long is a channel unvisited (by masters or above) before it can be expired?
+        "chan_expire_delay" "30d";
+        // How often to look for dnrs that have expired?
+        "dnr_expire_freq" "1h";
+        // what !set options should we show when user calls "!set" with no arguments?
+        "set_shows" ("DefaultTopic", "TopicMask", "AdvTopic", "Greeting", "UserGreeting", "Modes", "PubCmd", "InviteMe", "EnfModes", "EnfTopic", "TopicSnarf", "UserInfo", "GiveVoice", "GiveOps", "EnfOps", "Setters", "CtcpUsers", "CtcpReaction", "Protect", "Toys", "DynLimit", "NoDelete");
+
+        // A list of !8ball responses
+        "8ball" ("Not a chance.",
+                "In your dreams.",
+                "Absolutely!",
+                "Could be, could be.");
+        // channel(s) that support helpers must be in to be helping
+        // if this is a list, any one by itself will do
+        "support_channel" ("#support", "#registration");
+        // maximum number of channels owned by one account before FORCE is required
+        "max_owned" "5";
+        // how long between automatic topic refreshes with TopicRefresh 0
+        "refresh_period" "3h";
+        // how long between two invites of an user
+        "invite_timeout" "10s";
+        // what should !access say for various staff?
+        "irc_operator_epithet" "a megalomaniacal power hungry tyrant";
+        "network_helper_epithet" "a wannabe tyrant";
+        "support_helper_epithet" "a wannabe tyrant";
+        // what should a newly registered channel get as its modes?
+        "default_modes" "+nt";
+        // minimum opserv access to set, clear or override nodelete setting?
+        "nodelete_level" "1";
+        // how long before a new channel owner can give ownership away?
+        "giveownership_timeout" "1w";
+        // message sent to new channels
+        "new_channel_unauthed_join" ""; //only sent if the user is unauthed
+        "new_channel_authed_join" ""; //only sent if the user is authed
+        "new_channel_message" ""; //always after the message above
+        
+    };
+
+    "global" {
+        "nick" "Global";
+        // What user modes do you want this service to have? Please keep in
+        // mind which ircd software you are using here, and that all of the
+        // services need to be at least +o.
+        // "modes" "+iok";
+        // should users get community announcements by default or not?
+        "announcements_default" "on";
+    };
+    
+    "spamserv" {
+        // You may disable a service by removing its "nick" config item.
+        // That means: SERVICES WILL ONLY WORK IF YOU DEFINE THEIR NICK.
+        // (This is changed relative srvx-1.0.x, which would use default
+        // unless you specified ".disabled".)
+        "nick" "SpamServ";
+        "debug_channel" "#spamserv";
+        // url of the network rules. if you don't have network rules, remove this key.
+        "network_rules" "http://www.gamesurge.net/aup";
+        // trigger for spamserv; remove this key to disable the trigger
+        "trigger" "-";
+        // ban duration of a short timedban.
+        "short_ban_duration" "15m";
+        // ban duration of a long timedban.
+        "long_ban_duration" "1h";
+        // duration of a gline. SpamServ will issue it after several violations and a kill.
+        "gline_duration" "1h";
+        // users may add "exception_max" exceptions to the list. IRCOps can override "exception_max".
+        "exception_max" "10";
+        // minimum & maximum length of an exception.
+        "exception_min_len" "4";
+        "exception_max_len" "12";
+        // if someone advertises a channel, which doesn't exist (channel is empty, no users),
+        // SpamServ doesn't punish the user.
+        // enable this setting, if SpamServ has to ignore advertisements of channels, which do not exist.
+        // disable this setting, if SpamServ has to punish the users whenever they advertise.
+        "adv_chan_must_exist" "0";
+        // remove all mirc codes from messages before checking for advertisements.
+        // if this setting is disabled and someone spams a url which
+        // contains a bold char, SpamServ doesn't punish him.
+        "strip_mirc_codes" "1";
+        // enable this, if SpamServ has to "follow" ChanServ, when a channel moves or merges.
+        // disable it, if it shouldn't be possible to move or merge SpamServ with /msg chanserv move|merge.
+        "allow_move_merge" "1";
+    };
+};
+
+// The modules section gives configuration information to optional modules.
+"modules" {
+    "helpserv" {
+        // The description/fullname field
+        "description" "Help Queue Manager";
+        // HelpServ bots log all of their requests to this file, with
+        // details on when they were opened, closed, their contents,
+        // helper, etc. The file is written in saxdb format for easy
+        // parsing by external programs. Please note that you cannot
+        // use ?set to change this value while srvx is running.
+        "reqlogfile" "helpservreq.log";
+        // How long should a helpserv be inactive (no requests assigned)
+        // before it can be unregistered by the expire command?
+        "expiration" "60d";
+    };
+    "sockcheck" {
+        "max_sockets" "64";  // allow 64 concurrent clients to be checked
+        "max_read" "1024"; // don't read more than 1024 bytes from any client
+        "gline_duration" "1h"; // issue G-lines lasting one hour
+        "max_cache_age" "60"; // only cache results for 60 seconds
+        // "bind_address" "192.168.0.10"; // do proxy tests from this address
+    };
+    "snoop" {
+        // Where to send snoop messages?
+        "channel" "#wherever";
+        // Which bot?
+        "bot" "OpServ";
+        // Show new users and joins from net joins?  (off by default)
+        "show_bursts" "0";
+    };
+    "memoserv" {
+        "bot" "NickServ";
+        "message_expiry" "30d"; // age when messages are deleted; set
+                                // to 0 to disable message expiration
+    };
+    "qserver" {
+        "bind_address" "127.0.0.1";
+        "port" "7702";
+        "password" "hello";
+    };
+    "blacklist" {
+        // File containing blacklisted client addresses.
+        // "file" "blacklist.txt";
+        // Each line in the file should start with an IP or hostname.
+        // If there is whitespace and a message after that, the
+        // message will override this one:
+        "file_reason" "client is blacklisted";
+        // How long should a blacklist G-line last?
+        "gline_duration" "1h";
+        // Bot used to send debug notices
+        "debug_bot" "OpServ";
+        // To which channel should debug output be sent?
+        "debug_channel" "#opserv";
+        "debug_channel_modes" "+tinms";
+        // If you want to use DNS blacklists, add them here:
+        "dnsbl" {
+            // This DNSBL zone does not exist - you'll have to pick your own.
+            "dnsbl.example.org" {
+                // Send a notice instead of glining blacklisted ips
+                "debug" "1";
+                "description" "Example DNSBL entry";
+                "reason" "busted by a dns blacklist";
+                "duration" "1h";
+                // You can stick the client's IP in the G-line message.
+                "reason_2" "Example DNSBL reported %ip%'s address as 127.0.0.2";
+                // .. or the contents of a DNS TXT.
+                "reason_3" "%txt%";
+            };
+        };
+    };
+    "sar" {
+        // You generally will not want to override these defaults.
+        // "resolv_conf" "/etc/resolv.conf";
+        // "services" "/etc/services";
+        // "bind_address" "0.0.0.0";
+        // "bind_port" "0";
+        // The defaults for these are derived from the system config files (above).
+        // "domain" "example.org";
+        // "timeout" "3"; // base timeout for a DNS reply
+        // "retries" "3"; // number of times to retry on different servers or longer timeouts
+        // "ndots" "1";   // number of dots needed in a hostname to bypass search path
+        // "edns0" "0";   // if set, enable EDNS0 extended message sizes
+        // "search" ("example.org", "example.net");
+        // "nameservers" ("127.0.0.1");
+    };
+    "watchdog" {
+        "nick" "Watchdog";
+        "modes" "+iok";
+        "ban_duration" "2h"; //only if the channel is registered with chanserv
+        "gline_duration" "1h";
+        "punishment_reason" "Your message contained a forbidden word.";
+        "alert_chan" "#opers";
+    };
+	
+	"hostserv" {
+	    "nick" "HostServ";
+	    "modes" "+iokSD";
+	    "toplevel_access" "600";
+	    "fallback_other_assignment" "1";
+	    "manager_can_del_toplevel" "0";
+	    "manager_can_del_secondlevel" "0";
+	    "manager_can_rename_toplevel" "0";
+	    "manager_can_rename_secondlevel" "0";
+	    "manager_toplevel_can_oset" "0";
+	    "manager_secondlevel_can_oset" "0";
+    };
+};
+
+"policers" {
+    "commands-luser" {
+        "size" "5";
+        "drain-rate" "0.5";
+    };
+};
+
+"rlimits" {
+    "data" "50M";
+    "stack" "6M";
+    "vmem" "100M";
+};
+
+"server" {
+    "hostname" "localhost.domain";
+    "description" "Network Services";
+    "network" "GenericNET";
+    "hidden_host" "users.Generic.NET"; // set this if you enabled ircd/Undernet's +x mode
+    /* hidden_host should match the F:HIDDEN_HOST: line in your ircu's ircd.conf;
+     * srvx does not set the host suffix for users, but must know it when making
+     * things like bans, where it should not show the user's real hostname. */
+    "numeric" "10"; // hint: If you get collisions on link, CHANGE THIS.
+    "max_users" "256"; // You can save a little memory by setting this to a lower value.
+    "force_n2k" "1"; // Use extended (5-digit) numnick for self, even if 3 are possible.
+    "ping_freq" "60";
+    "ping_timeout" "90";
+    "max_cycles" "30"; // max uplink cycles before giving up
+    // Admin information is traditionally: location, location, email
+    "admin" ("IRC Network", "Gotham City, GO", "Mr Commissioner <james.gordon@police.gov>");
+    /* the following two settings are for ircu's HEAD_IN_SAND features, and are equivelent to
+     * the F: lines in ircu's ircd.conf. both can be disabled by commenting them out. */
+    "his_servername" "*.Generic.NET"; // hidden server name, shown in remote /whois requests
+    "his_servercomment" "The Generic, Boring IRC Network";
+};
+
+// controlling how services (mostly NickServ) send mail
+"mail" {
+    // These options are the defaults.
+    "enable" "0";
+    "mailer" "/usr/sbin/sendmail";
+    "from_address" "admin@poorly.configured.server";
+    // These are not :>
+    "extra_headers" ("X-Ereet-Services: srvx r reet");
+    "body_prefix_first" ("Welcome to our network.  This prefix is used whenever srvx thinks this may be the first time we send email to your address.");
+    "body_prefix" ("This goes before the mail text.", "Each string here is treated as a separate \"paragraph\" for line wrapping.");
+    "body_suffix_first" ("We care a lot about spam.  If you did not request this email, bitch and moan loudly at our opers, and tell our ISP to gank our connection.");
+    "body_suffix" ("PLEASE DO NOT BE ALARMED.  CALMLY BOARD THE AIRCRAFT, STRAP YOUR ARMS ACROSS YOUR BODY, AND JUMP THE HELL OUT OF THE PLANE.", "Yaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatta!");
+    // If you are using the smtp mail back-end, you may need to set these:
+    "smtp_server" "localhost";
+    "smtp_service" "smtp";
+    // "smtp_myname" "localhost.domain";
+};
+
+// New section in srvx-1.2 to control database locations, etc.
+// If you leave this section out, each database will be in its own file,
+// and they will be written out every half hour.
+"dbs" {
+    // This just illustrates how you can jam every database into one huge ("mondo") file.
+    "ChanServ" { "mondo_section" "ChanServ"; };
+    "gline" { "mondo_section" "gline"; };
+    "Global" { "mondo_section" "Global"; };
+    "HelpServ" { "mondo_section" "HelpServ"; };
+    "modcmd" { "mondo_section" "modcmd"; };
+    "NickServ" { "mondo_section" "NickServ"; };
+    "OpServ" { "mondo_section" "OpServ"; };
+    "sendmail" { "mondo_section" "sendmail"; };
+    "SpamServ" { "mondo_section" "SpamServ"; };
+    "Watchdog" { "mondo_section" "Watchdog"; };
+
+    // These are the options if you want a database to be in its own file.
+    "mondo" {
+        // Where to put it?
+        "filename" "srvx.db";
+        // How often should it be saved?
+        // (You can disable automatic saves by setting this to 0.)
+        "frequency" "30m";
+    };
+};
+
+// New section in srvx-1.2 to control log destinations.
+// If you leave this section out, each service (technically, each log
+// facility) will be in its own file, just like before.
+"logs" {
+    // Two kinds of items exist in this section.
+
+    // One is a facility configuration subsection.  These have the
+    // name of a log facility (one of "ChanServ", "Global",
+    // "HelpServ", "NickServ", "OpServ", "ProxyCheck", or "srvx") and
+    // the value is a subsection. The "srvx" log facility is a
+    // catch-all/fall-back facility.
+    "srvx" {
+        // The "max_age" option says how long to keep log audit entries.
+        "max_age" "10m";
+        // The "max_count" option says how many log audit entries to keep.
+        "max_count" "1024";
+        // Audit (command tracking) entries are discarded if they exceed
+        // either limit: for example, if entry 500 is 10 minutes old, it
+        // will be discarded next time any audit command is logged.
+    };
+
+    // The other kind of item is a target list.  The name of each is a
+    // description of facility-and-severity combinations, and the value
+    // is a string (or list of strings) that describe where matching
+    // events should be logged.  As a special case, the facility * will
+    // specify how to log events regardless of their true facility, and
+    // the severity * will match all severities for a facility.
+    // Log targets use a psuedo-URI syntax:  one of "file:filename",
+    // "std:[out|err|n]" where n is a valid file descriptor, or
+    // "irc:#channel" (nicknames or server masks can be used instead
+    // of channel names, but should be used with care).
+    // The severity is one of "replay", "debug", "command", "info",
+    // "override", "staff", "warning", "error", or "fatal".
+    // WARNING: If any severity except "replay" for a facility is left
+    // unspecified, it will use the default target (for example,
+    // "file:chanserv.log").  For "replay" severity, you must ALWAYS
+    // list a target to log it -- this is because it is very rarely
+    // useful.
+    "*.*" ("std:out", "file:everything.log"); // does NOT suppress any defaults
+    "*.override,staff" "irc:#big-brother"; // report all uses of staff commands
+    "ChanServ.*" "file:chanserv.log"; // duplicates the default behavior
+    "ProxyCheck.*" (); // stop it from logging anything
+};
